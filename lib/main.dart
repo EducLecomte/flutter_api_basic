@@ -34,6 +34,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   Map<String, dynamic> dataMap = new Map();
   bool recupDataBool = false;
+  int id = 1;
 
   void recupData() async {
     await recupDataJson();
@@ -45,7 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> recupDataJson() async {
-    String url = "https://pokeapi.co/api/v2/pokemon/1";
+    String url = "https://pokeapi.co/api/v2/pokemon/" + this.id.toString();
     var reponse = await http.get(Uri.parse(url));
     if (reponse.statusCode == 200) {
       dataMap = convert.jsonDecode(reponse.body);
@@ -60,15 +61,14 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     if (recupDataBool) {
-      contenu.children.add(Text("id: " + dataMap['id'].toString()));
+      Map<String, dynamic> spritesData = dataMap['sprites'];
+      //contenu.children.add(Image.network(spritesData['front_default'].toString()));
+      contenu.children.add(Image.network(spritesData['other']['official-artwork']['front_default'].toString()));
       List<dynamic> formsData = dataMap['forms'];
       contenu.children.add(Text("Name: " + formsData[0]['name'].toString()));
-      Map<String, dynamic> spritesData = dataMap['sprites'];
-      contenu.children.add(Image.network(spritesData['front_default'].toString()));
       contenu.children.add(Text("Height: " + dataMap['height'].toString()));
       contenu.children.add(Text("Weight: " + dataMap['weight'].toString()));
     }
-
     Center affichage = Center(child: contenu);
     return affichage;
   }
@@ -85,6 +85,24 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  decrement() {
+    setState(() {
+      if (id > 1) {
+        id--;
+        recupDataBool = false;
+      }
+    });
+  }
+
+  increment() {
+    setState(() {
+      if (id < 151) {
+        id++;
+        recupDataBool = false;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!recupDataBool) {
@@ -95,6 +113,37 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: recupDataBool ? afficheData() : attente(),
+      floatingActionButton: FloatingActionButton(
+        child: Text("Id: " + id.toString()),
+        onPressed: null,
+      ),
+      /*floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+       bottomNavigationBar: BottomAppBar(
+        shape: CircularNotchedRectangle(),
+        color: Colors.red,
+        child: Container(
+          height: 50,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              IconButton(
+                icon: const Icon(
+                  Icons.navigate_before,
+                  color: Colors.white,
+                ),
+                onPressed: decrement,
+              ),
+              IconButton(
+                icon: const Icon(
+                  Icons.navigate_next,
+                  color: Colors.white,
+                ),
+                onPressed: increment,
+              ),
+            ],
+          ),
+        ),
+      ), */
     );
   }
 }
