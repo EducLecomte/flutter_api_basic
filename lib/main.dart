@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
@@ -36,6 +38,15 @@ class _MyHomePageState extends State<MyHomePage> {
   bool recupDataBool = false;
   int id = 1;
 
+  bool auto = false;
+  void randomID() async {
+    while (auto) {
+      await Future.delayed(const Duration(seconds: 3));
+      id = Random().nextInt(149) + 1;
+      recupData();
+    }
+  }
+
   void recupData() async {
     await recupDataJson();
     if (mounted) {
@@ -46,7 +57,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> recupDataJson() async {
-    String url = "https://pokeapi.co/api/v2/pokemon/" + this.id.toString();
+    //String url = "https://pokeapi.co/api/v2/pokemon/" + this.id.toString();
+    String url = "https://pokebuildapi.fr/api/v1/pokemon/" + this.id.toString();
     var reponse = await http.get(Uri.parse(url));
     if (reponse.statusCode == 200) {
       dataMap = convert.jsonDecode(reponse.body);
@@ -61,11 +73,16 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     if (recupDataBool) {
-      contenu.children.add(Image.network(dataMap['sprites']['front_default'].toString()));
-      //contenu.children.add(Image.network(dataMap['sprites']['other']['official-artwork']['front_default'].toString()));
+      /* contenu.children.add(Image.network(dataMap['sprites']['front_default'].toString()));
+      contenu.children.add(Image.network(dataMap['sprites']['other']['official-artwork']['front_default'].toString()));
       contenu.children.add(Text("Name: " + dataMap['forms'][0]['name'].toString()));
       contenu.children.add(Text("Height: " + dataMap['height'].toString()));
       contenu.children.add(Text("Weight: " + dataMap['weight'].toString()));
+      contenu.children.add(Text("Type: " + dataMap['types'][0]['type']['name'].toString())); */
+      contenu.children.add(Image.network(dataMap['sprite'].toString()));
+      // contenu.children.add(Image.network(dataMap['image'].toString()));
+      contenu.children.add(Text("Nom: " + dataMap['name'].toString()));
+      contenu.children.add(Text("Type: " + dataMap['apiTypes'][0]['name'].toString()));
     }
     Center affichage = Center(child: contenu);
     return affichage;
@@ -109,10 +126,22 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.video_settings),
+            tooltip: 'Auto gaming',
+            onPressed: () {
+              auto = !auto;
+              randomID();
+            },
+          ),
+        ],
       ),
       body: recupDataBool ? afficheData() : attente(),
       floatingActionButton: FloatingActionButton(
-        child: Text("Id: " + id.toString()),
+        child: Text(
+          "n° " + id.toString(),
+        ),
         onPressed: null,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
