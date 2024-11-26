@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
@@ -17,6 +18,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.red,
+        useMaterial3: false,
       ),
       home: const MyHomePage(title: 'Flutter Demo PokeApi'),
       debugShowCheckedModeBanner: false,
@@ -79,7 +81,15 @@ class _MyHomePageState extends State<MyHomePage> {
       contenu.children.add(Text("Height: " + dataMap['height'].toString()));
       contenu.children.add(Text("Weight: " + dataMap['weight'].toString()));
       contenu.children.add(Text("Type: " + dataMap['types'][0]['type']['name'].toString())); */
-      contenu.children.add(Image.network(dataMap['sprite'].toString()));
+      contenu.children.add(
+        //Image.network(dataMap['sprite'].toString())
+        CachedNetworkImage(
+          imageUrl: dataMap['sprite'].toString(),
+          progressIndicatorBuilder: (context, url, downloadProgress) =>
+              CircularProgressIndicator(value: downloadProgress.progress),
+          errorWidget: (context, url, error) => Icon(Icons.error),
+        ),
+      );
       // contenu.children.add(Image.network(dataMap['image'].toString()));
       contenu.children.add(Text("Nom: " + dataMap['name'].toString()));
       contenu.children.add(Text("Type: " + dataMap['apiTypes'][0]['name'].toString()));
